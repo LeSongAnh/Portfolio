@@ -26,7 +26,7 @@ export default function Navbar() {
               href="/" 
               className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 transition"
             >
-              Portfolio
+              Song Anh
             </Link>
           </div>
 
