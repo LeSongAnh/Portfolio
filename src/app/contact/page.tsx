@@ -1,145 +1,135 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { useActionState } from 'react';
+import { submitContactForm } from './actions';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { Label } from '@/components/ui/Label';
+import { Button } from '@/components/ui/Button';
 
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      setSubmitted(false);
-    }, 3000);
-  };
+  const [state, formAction, isPending] = useActionState(submitContactForm, {});
 
   return (
     <div>
       {/* Header */}
       <section className="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-12">
         <div className="container-custom">
-          <h1 className="text-5xl font-bold text-white">Liên hệ với tôi</h1>
-          <p className="text-lg mt-2">Tôi rất vui được nghe từ bạn</p>
+          <h1 className="text-5xl font-bold text-white">Contact Me</h1>
+          <p className="text-lg mt-2">I'd love to hear from you!</p>
         </div>
       </section>
 
       {/* Content */}
-      <section className="py-12 bg-white">
+      <section className="py-12 bg-white dark:bg-gray-950">
         <div className="container-custom max-w-3xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div className="card text-center">
+            <Card className="text-center">
               <div className="text-4xl mb-3">📧</div>
               <h3 className="font-bold mb-2">Email</h3>
-              <p className="text-gray-600">hello@portfolio.com</p>
-            </div>
-            <div className="card text-center">
+              <p className="text-gray-600 dark:text-gray-400">hello@portfolio.com</p>
+            </Card>
+            <Card className="text-center">
               <div className="text-4xl mb-3">📱</div>
               <h3 className="font-bold mb-2">Phone</h3>
-              <p className="text-gray-600">+84 123 456 789</p>
-            </div>
-            <div className="card text-center">
+              <p className="text-gray-600 dark:text-gray-400">+84 123 456 789</p>
+            </Card>
+            <Card className="text-center">
               <div className="text-4xl mb-3">📍</div>
-              <h3 className="font-bold mb-2">Địa chỉ</h3>
-              <p className="text-gray-600">Hà Nội, Việt Nam</p>
-            </div>
+              <h3 className="font-bold mb-2">Address</h3>
+              <p className="text-gray-600 dark:text-gray-400">Hanoi, Vietnam</p>
+            </Card>
           </div>
 
           {/* Form */}
-          <div className="bg-gray-50 p-8 rounded-lg">
-            <h2 className="mb-6">Gửi tin nhắn cho tôi</h2>
+          <Card className="border-t-4 border-t-purple-600">
+            <h2 className="text-2xl font-bold mb-6">Send me a message</h2>
             
-            {submitted && (
-              <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                ✓ Cảm ơn bạn! Tin nhắn của bạn đã được gửi. Tôi sẽ liên hệ lại sớm.
+            {state.message && (
+              <div className={`mb-6 p-4 rounded-lg border ${
+                state.errors 
+                  ? 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-700 dark:text-red-200'
+                  : 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800 text-green-700 dark:text-green-200'
+              }`}>
+                {state.message}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form action={formAction} className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Tên của bạn
-                </label>
-                <input
+                <Label htmlFor="name" className="text-gray-700 dark:text-gray-300 mb-2 block">
+                  Name *
+                </Label>
+                <Input
                   type="text"
                   id="name"
                   name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Nhập tên của bạn"
+                  disabled={isPending}
+                  placeholder="Your name"
                 />
+                {state.errors?.name && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{state.errors.name[0]}</p>
+                )}
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
-                </label>
-                <input
+                <Label htmlFor="email" className="text-gray-700 dark:text-gray-300 mb-2 block">
+                  Email *
+                </Label>
+                <Input
                   type="email"
                   id="email"
                   name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={isPending}
                   placeholder="your@email.com"
                 />
+                {state.errors?.email && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{state.errors.email[0]}</p>
+                )}
               </div>
 
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                  Chủ đề
-                </label>
-                <input
+                <Label htmlFor="subject" className="text-gray-700 dark:text-gray-300 mb-2 block">
+                  Subject *
+                </Label>
+                <Input
                   type="text"
                   id="subject"
                   name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Chủ đề của bạn"
+                  disabled={isPending}
+                  placeholder="Message subject"
                 />
+                {state.errors?.subject && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{state.errors.subject[0]}</p>
+                )}
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                  Tin nhắn
-                </label>
-                <textarea
+                <Label htmlFor="message" className="text-gray-700 dark:text-gray-300 mb-2 block">
+                  Message *
+                </Label>
+                <Textarea
                   id="message"
                   name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
+                  disabled={isPending}
                   rows={6}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Nhập tin nhắn của bạn..."
-                ></textarea>
+                  placeholder="Your message..."
+                />
+                {state.errors?.message && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{state.errors.message[0]}</p>
+                )}
               </div>
 
-              <button
+              <Button
                 type="submit"
-                className="w-full btn-primary"
+                disabled={isPending}
+                className="w-full"
               >
-                Gửi tin nhắn
-              </button>
+                {isPending ? 'Sending...' : 'Send Message'}
+              </Button>
             </form>
-          </div>
+          </Card>
         </div>
       </section>
     </div>
